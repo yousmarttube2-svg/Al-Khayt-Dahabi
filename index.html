@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+<title>الخيط الذهبي | نظام إدارة محل الخياطة</title>
+
+<!-- ============================================================
+     إعدادات تطبيق الويب التقدمي (PWA): الأيقونة + التثبيت على الشاشة الرئيسية
+     ============================================================ -->
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#C08A4E">
+<link rel="icon" type="image/x-icon" href="icons/favicon.ico">
+<link rel="apple-touch-icon" href="icons/icon-180.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="الخيط الذهبي">
+
+<!-- خطوط عربية نظيفة من جوجل فونتس -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&family=Tajawal:wght@400;500;700;900&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="style.css">
+
+<!-- ============================================================
+     Firebase SDK (نسخة compat عبر CDN، تعمل مباشرة بدون أدوات بناء)
+     ============================================================ -->
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+</head>
+<body>
+
+<!-- ================= شاشة تحميل أولية (قبل التحقق من تسجيل الدخول) ================= -->
+<div id="bootScreen" class="boot-screen">
+  <div class="boot-spinner"></div>
+  <p>جاري الاتصال بالخادم...</p>
+</div>
+
+<!-- ================= شاشة تسجيل الدخول ================= -->
+<div id="loginScreen" class="login-screen" hidden>
+  <div class="login-bg-pattern"></div>
+  <div class="login-card">
+    <div class="login-brand">
+      <div class="brand-mark logo-mark">
+        <img src="icons/icon-192.png" alt="الخيط الذهبي" class="brand-logo-img">
+      </div>
+      <h1>الخيط الذهبي</h1>
+      <p>نظام إدارة محل الخياطة والمقاسات</p>
+    </div>
+
+    <form id="loginForm" class="login-form" autocomplete="off">
+      <div class="field">
+        <label for="loginUser">البريد الإلكتروني</label>
+        <div class="input-with-icon">
+          <svg class="input-icon"><use href="#icon-user"></use></svg>
+          <input type="email" id="loginUser" placeholder="example@email.com" required>
+        </div>
+      </div>
+      <div class="field">
+        <label for="loginPass">كلمة المرور</label>
+        <div class="input-with-icon">
+          <svg class="input-icon"><use href="#icon-lock"></use></svg>
+          <input type="password" id="loginPass" placeholder="أدخل كلمة المرور" required>
+        </div>
+        <button type="button" id="forgotPasswordBtn" class="forgot-password-link">نسيت كلمة المرور؟</button>
+      </div>
+      <p id="loginError" class="login-error" hidden></p>
+      <button type="submit" class="btn btn-primary btn-block" id="loginSubmitBtn">
+        <svg class="btn-icon"><use href="#icon-login"></use></svg>
+        <span id="loginSubmitLabel">تسجيل الدخول</span>
+      </button>
+    </form>
+
+    <button id="installAppBtnLogin" class="install-banner" hidden>
+      <svg><use href="#icon-install"></use></svg>
+      <span>ثبّت التطبيق على شاشتك الرئيسية للوصول السريع</span>
+    </button>
+  </div>
+</div>
+
+<!-- ================= واجهة التطبيق الرئيسية ================= -->
+<div id="appShell" class="app-shell" hidden>
+
+  <!-- ===== الشريط الجانبي ===== -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="brand-mark small logo-mark">
+        <img src="icons/icon-96.png" alt="الخيط الذهبي" class="brand-logo-img">
+      </div>
+      <div class="brand-text">
+        <strong>الخيط الذهبي</strong>
+        <span>إدارة الخياطة</span>
+      </div>
+      <button id="sidebarCloseBtn" class="icon-btn sidebar-close" aria-label="إغلاق القائمة">
+        <svg><use href="#icon-close"></use></svg>
+      </button>
+    </div>
+
+    <nav class="sidebar-nav">
+      <button class="nav-item active" data-page="dashboard">
+        <svg><use href="#icon-dashboard"></use></svg>
+        <span>لوحة التحكم</span>
+      </button>
+      <button class="nav-item" data-page="customers">
+        <svg><use href="#icon-users"></use></svg>
+        <span>العملاء</span>
+      </button>
+      <button class="nav-item" data-page="measurements">
+        <svg><use href="#icon-tape"></use></svg>
+        <span>المقاسات</span>
+      </button>
+      <button class="nav-item" data-page="orders">
+        <svg><use href="#icon-orders"></use></svg>
+        <span>الطلبات</span>
+      </button>
+      <button class="nav-item" data-page="reports">
+        <svg><use href="#icon-report"></use></svg>
+        <span>التقارير</span>
+      </button>
+      <button class="nav-item" data-page="settings">
+        <svg><use href="#icon-settings"></use></svg>
+        <span>الإعدادات</span>
+      </button>
+    </nav>
+
+    <div class="sidebar-footer">
+      <button id="installAppBtn" class="install-app-btn" hidden>
+        <svg><use href="#icon-install"></use></svg>
+        <span>تثبيت التطبيق</span>
+      </button>
+      <button id="themeToggleBtn" class="theme-toggle" aria-label="تبديل المظهر">
+        <svg class="icon-sun"><use href="#icon-sun"></use></svg>
+        <svg class="icon-moon"><use href="#icon-moon"></use></svg>
+        <span id="themeToggleLabel">الوضع الليلي</span>
+      </button>
+      <button id="logoutBtn" class="logout-btn">
+        <svg><use href="#icon-logout"></use></svg>
+        <span>تسجيل الخروج</span>
+      </button>
+    </div>
+  </aside>
+
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+  <!-- ===== المحتوى الرئيسي ===== -->
+  <div class="main-area">
+
+    <!-- شريط علوي -->
+    <header class="topbar">
+      <button id="sidebarOpenBtn" class="icon-btn menu-btn" aria-label="فتح القائمة">
+        <svg><use href="#icon-menu"></use></svg>
+      </button>
+      <h2 id="pageTitle" class="page-title">لوحة التحكم</h2>
+      <div class="topbar-spacer"></div>
+      <span id="syncStatus" class="sync-status synced"><span class="sync-dot"></span> متصل</span>
+      <div class="topbar-user">
+        <span id="currentUserLabel">...</span>
+        <div class="avatar"><svg><use href="#icon-user"></use></svg></div>
+      </div>
+    </header>
+
+    <main class="page-content" id="pageContent">
+
+      <!-- ============ صفحة لوحة التحكم ============ -->
+      <section class="page active" id="page-dashboard">
+
+        <div class="stats-grid">
+          <div class="stat-card stat-customers">
+            <div class="stat-ruler"></div>
+            <div class="stat-icon"><svg><use href="#icon-users"></use></svg></div>
+            <div class="stat-info">
+              <span class="stat-value" id="statCustomers">0</span>
+              <span class="stat-label">عدد العملاء</span>
+            </div>
+          </div>
+          <div class="stat-card stat-orders">
+            <div class="stat-ruler"></div>
+            <div class="stat-icon"><svg><use href="#icon-orders"></use></svg></div>
+            <div class="stat-info">
+              <span class="stat-value" id="statOrders">0</span>
+              <span class="stat-label">عدد الطلبات</span>
+            </div>
+          </div>
+          <div class="stat-card stat-ready">
+            <div class="stat-ruler"></div>
+            <div class="stat-icon"><svg><use href="#icon-check"></use></svg></div>
+            <div class="stat-info">
+              <span class="stat-value" id="statReady">0</span>
+              <span class="stat-label">الطلبات الجاهزة</span>
+            </div>
+          </div>
+          <div class="stat-card stat-progress">
+            <div class="stat-ruler"></div>
+            <div class="stat-icon"><svg><use href="#icon-clock"></use></svg></div>
+            <div class="stat-info">
+              <span class="stat-value" id="statInProgress">0</span>
+              <span class="stat-label">قيد التنفيذ</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="dash-grid">
+          <div class="card">
+            <div class="card-header">
+              <h3><svg class="card-header-icon"><use href="#icon-users"></use></svg> أحدث العملاء</h3>
+            </div>
+            <div class="card-body">
+              <table class="data-table" id="latestCustomersTable">
+                <thead>
+                  <tr><th>الاسم الكامل</th><th>رقم الهاتف</th><th>تاريخ التسجيل</th></tr>
+                </thead>
+                <tbody></tbody>
+              </table>
+              <p class="empty-state" id="latestCustomersEmpty" hidden>لا يوجد عملاء بعد. أضف أول عميل من صفحة العملاء.</p>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <h3><svg class="card-header-icon"><use href="#icon-orders"></use></svg> توزيع حالات الطلبات</h3>
+            </div>
+            <div class="card-body">
+              <div class="status-bars" id="statusBars"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ صفحة العملاء ============ -->
+      <section class="page" id="page-customers">
+        <div class="toolbar">
+          <div class="search-box">
+            <svg><use href="#icon-search"></use></svg>
+            <input type="text" id="customerSearch" placeholder="البحث بالاسم أو رقم الهاتف أو رقم العميل...">
+          </div>
+          <button class="btn btn-primary" id="addCustomerBtn">
+            <svg class="btn-icon"><use href="#icon-plus"></use></svg>
+            إضافة عميل
+          </button>
+        </div>
+
+        <div class="card">
+          <div class="card-body table-wrap">
+            <table class="data-table" id="customersTable">
+              <thead>
+                <tr>
+                  <th>رقم العميل</th>
+                  <th>الصورة</th>
+                  <th>الاسم الكامل</th>
+                  <th>رقم الهاتف</th>
+                  <th>العنوان</th>
+                  <th>تاريخ التسجيل</th>
+                  <th>إجراءات</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+            <p class="empty-state" id="customersEmpty" hidden>لا يوجد عملاء مطابقون. اضغط على "إضافة عميل" للبدء.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ صفحة المقاسات ============ -->
+      <section class="page" id="page-measurements">
+        <div class="toolbar">
+          <div class="search-box">
+            <svg><use href="#icon-search"></use></svg>
+            <input type="text" id="measurementSearch" placeholder="البحث عن مقاسات عميل...">
+          </div>
+          <button class="btn btn-primary" id="addMeasurementBtn">
+            <svg class="btn-icon"><use href="#icon-plus"></use></svg>
+            إضافة مقاس جديد
+          </button>
+        </div>
+
+        <div class="card">
+          <div class="card-body table-wrap">
+            <table class="data-table" id="measurementsTable">
+              <thead>
+                <tr>
+                  <th>العميل</th>
+                  <th>الأكتاف</th>
+                  <th>التركيز</th>
+                  <th>الصدر</th>
+                  <th>الكم</th>
+                  <th>الحزام</th>
+                  <th>الطول</th>
+                  <th>تاريخ القياس</th>
+                  <th>إجراءات</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+            <p class="empty-state" id="measurementsEmpty" hidden>لا توجد مقاسات مسجلة بعد.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ صفحة الطلبات ============ -->
+      <section class="page" id="page-orders">
+        <div class="toolbar">
+          <div class="search-box">
+            <svg><use href="#icon-search"></use></svg>
+            <input type="text" id="orderSearch" placeholder="البحث برقم الطلب أو اسم العميل...">
+          </div>
+          <select id="orderStatusFilter" class="select-input">
+            <option value="">كل الحالات</option>
+            <option value="جديد">جديد</option>
+            <option value="قيد التنفيذ">قيد التنفيذ</option>
+            <option value="جاهز">جاهز</option>
+            <option value="تم التسليم">تم التسليم</option>
+            <option value="ملغي">ملغي</option>
+          </select>
+          <button class="btn btn-primary" id="addOrderBtn">
+            <svg class="btn-icon"><use href="#icon-plus"></use></svg>
+            إضافة طلب
+          </button>
+        </div>
+
+        <div class="card">
+          <div class="card-body table-wrap">
+            <table class="data-table" id="ordersTable">
+              <thead>
+                <tr>
+                  <th>رقم الطلب</th>
+                  <th>العميل</th>
+                  <th>تاريخ الطلب</th>
+                  <th>تاريخ التسليم</th>
+                  <th>حالة الطلب</th>
+                  <th>إجراءات</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+            <p class="empty-state" id="ordersEmpty" hidden>لا توجد طلبات مطابقة.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ صفحة التقارير ============ -->
+      <section class="page" id="page-reports">
+        <div class="reports-grid">
+          <div class="card report-card">
+            <div class="card-header"><h3><svg class="card-header-icon"><use href="#icon-users"></use></svg> تقرير العملاء</h3></div>
+            <div class="card-body">
+              <p class="report-desc">قائمة كاملة بجميع العملاء المسجلين مع بياناتهم وتاريخ التسجيل.</p>
+              <div class="report-actions">
+                <button class="btn btn-outline" data-report="customers"><svg class="btn-icon"><use href="#icon-eye"></use></svg> عرض التقرير</button>
+                <button class="btn btn-ghost" data-print-report="customers"><svg class="btn-icon"><use href="#icon-print"></use></svg> طباعة</button>
+              </div>
+            </div>
+          </div>
+          <div class="card report-card">
+            <div class="card-header"><h3><svg class="card-header-icon"><use href="#icon-orders"></use></svg> تقرير الطلبات</h3></div>
+            <div class="card-body">
+              <p class="report-desc">عرض جميع الطلبات وحالاتها وتواريخ التسليم.</p>
+              <div class="report-actions">
+                <button class="btn btn-outline" data-report="orders"><svg class="btn-icon"><use href="#icon-eye"></use></svg> عرض التقرير</button>
+                <button class="btn btn-ghost" data-print-report="orders"><svg class="btn-icon"><use href="#icon-print"></use></svg> طباعة</button>
+              </div>
+            </div>
+          </div>
+          <div class="card report-card">
+            <div class="card-header"><h3><svg class="card-header-icon"><use href="#icon-tape"></use></svg> تقرير المقاسات</h3></div>
+            <div class="card-body">
+              <p class="report-desc">عرض جميع مقاسات العملاء المسجلة في النظام.</p>
+              <div class="report-actions">
+                <button class="btn btn-outline" data-report="measurements"><svg class="btn-icon"><use href="#icon-eye"></use></svg> عرض التقرير</button>
+                <button class="btn btn-ghost" data-print-report="measurements"><svg class="btn-icon"><use href="#icon-print"></use></svg> طباعة</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card" id="reportResultCard" hidden>
+          <div class="card-header">
+            <h3 id="reportResultTitle">نتيجة التقرير</h3>
+            <button class="btn btn-ghost btn-sm" id="printCurrentReportBtn"><svg class="btn-icon"><use href="#icon-print"></use></svg> طباعة هذا التقرير</button>
+          </div>
+          <div class="card-body table-wrap" id="reportResultBody"></div>
+        </div>
+      </section>
+
+      <!-- ============ صفحة الإعدادات ============ -->
+      <section class="page" id="page-settings">
+        <div class="dash-grid">
+          <div class="card">
+            <div class="card-header"><h3><svg class="card-header-icon"><use href="#icon-export"></use></svg> تصدير واستيراد البيانات</h3></div>
+            <div class="card-body">
+              <p class="report-desc">احتفظ بنسخة احتياطية من جميع بياناتك (العملاء، المقاسات، الطلبات) المخزّنة في Firestore كملف JSON، أو استرجعها لاحقًا.</p>
+              <div class="report-actions">
+                <button class="btn btn-primary" id="exportDataBtn"><svg class="btn-icon"><use href="#icon-export"></use></svg> تصدير البيانات (JSON)</button>
+                <button class="btn btn-outline" id="importDataBtn"><svg class="btn-icon"><use href="#icon-import"></use></svg> استيراد البيانات</button>
+                <input type="file" id="importFileInput" accept="application/json" hidden>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header"><h3><svg class="card-header-icon"><use href="#icon-lock"></use></svg> حساب تسجيل الدخول</h3></div>
+            <div class="card-body">
+              <p class="report-desc">أنت مسجّل الدخول عبر Firebase Authentication بالحساب التالي:</p>
+              <div class="detail-item" style="margin-bottom:16px"><span>البريد الإلكتروني</span><strong id="settingsUserEmail">—</strong></div>
+              <p style="font-size:.8rem;color:var(--text-faint);margin-bottom:10px">لتغيير كلمة المرور أو إضافة مستخدمين جدد، استخدم لوحة Firebase Console (Authentication → Users).</p>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header"><h3><svg class="card-header-icon"><use href="#icon-danger"></use></svg> منطقة الخطر</h3></div>
+            <div class="card-body">
+              <p class="report-desc">حذف جميع البيانات بشكل نهائي من قاعدة بيانات Firestore. لا يمكن التراجع عن هذا الإجراء.</p>
+              <button class="btn btn-danger" id="resetAllBtn"><svg class="btn-icon"><use href="#icon-trash"></use></svg> حذف جميع البيانات</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+</div>
+
+<!-- ================= نافذة منبثقة عامة (Modal) ================= -->
+<div id="modalOverlay" class="modal-overlay" hidden>
+  <div class="modal" id="modalBox">
+    <div class="modal-header">
+      <h3 id="modalTitle">عنوان</h3>
+      <button class="icon-btn" id="modalCloseBtn" aria-label="إغلاق"><svg><use href="#icon-close"></use></svg></button>
+    </div>
+    <div class="modal-body" id="modalBody"></div>
+  </div>
+</div>
+
+<!-- ================= صندوق التنبيهات (Toast) ================= -->
+<div id="toastContainer" class="toast-container"></div>
+
+<!-- ================= منطقة الطباعة المخفية ================= -->
+<div id="printArea" class="print-area"></div>
+
+<!-- ================= مكتبة الأيقونات SVG (Sprite) ================= -->
+<svg style="display:none">
+<defs>
+  <symbol id="icon-scissors-big" viewBox="0 0 64 64"><path d="M22 30 L46 12 M22 34 L46 52" stroke="currentColor" stroke-width="3" fill="none" stroke-linecap="round"/><circle cx="16" cy="26" r="6" stroke="currentColor" stroke-width="3" fill="none"/><circle cx="16" cy="38" r="6" stroke="currentColor" stroke-width="3" fill="none"/><path d="M22 30 L22 34" stroke="currentColor" stroke-width="3"/></symbol>
+  <symbol id="icon-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4" stroke="currentColor" stroke-width="2" fill="none"/><path d="M4 20c0-4 3.5-7 8-7s8 3 8 7" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/></symbol>
+  <symbol id="icon-lock" viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="9" rx="2" stroke="currentColor" stroke-width="2" fill="none"/><path d="M8 11V8a4 4 0 018 0v3" stroke="currentColor" stroke-width="2" fill="none"/></symbol>
+  <symbol id="icon-login" viewBox="0 0 24 24"><path d="M15 17l5-5-5-5M20 12H9M12 4H6a2 2 0 00-2 2v12a2 2 0 002 2h6" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="icon-logout" viewBox="0 0 24 24"><path d="M9 17l-5-5 5-5M4 12h11M12 4h6a2 2 0 012 2v12a2 2 0 01-2 2h-6" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="icon-menu" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+  <symbol id="icon-close" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+  <symbol id="icon-dashboard" viewBox="0 0 24 24"><rect x="3" y="3" width="8" height="8" rx="1.5" stroke="currentColor" stroke-width="2" fill="none"/><rect x="13" y="3" width="8" height="5" rx="1.5" stroke="currentColor" stroke-width="2" fill="none"/><rect x="13" y="11" width="8" height="10" rx="1.5" stroke="currentColor" stroke-width="2" fill="none"/><rect x="3" y="13" width="8" height="8" rx="1.5" stroke="currentColor" stroke-width="2" fill="none"/></symbol>
+  <symbol id="icon-users" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.2" stroke="currentColor" stroke-width="2" fill="none"/><path d="M3 20c0-3.5 2.7-6 6-6s6 2.5 6 6" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/><circle cx="17" cy="9" r="2.6" stroke="currentColor" stroke-width="2" fill="none"/><path d="M15.5 14c2.6.3 4.5 2.4 4.5 5" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/></symbol>
+  <symbol id="icon-tape" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2" fill="none"/><circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2" fill="none"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+  <symbol id="icon-orders" viewBox="0 0 24 24"><rect x="5" y="3" width="14" height="18" rx="2" stroke="currentColor" stroke-width="2" fill="none"/><path d="M9 8h6M9 12h6M9 16h3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+  <symbol id="icon-report" viewBox="0 0 24 24"><path d="M4 19V5a2 2 0 012-2h7l5 5v11a2 2 0 01-2 2H6a2 2 0 01-2-2z" stroke="currentColor" stroke-width="2" fill="none" stroke-linejoin="round"/><path d="M13 3v5h5" stroke="currentColor" stroke-width="2" fill="none" stroke-linejoin="round"/><path d="M8 13h3M8 16h6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+  <symbol id="icon-settings" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2" fill="none"/><path d="M19.4 13.5a1.7 1.7 0 000-3l1.1-1.9-1.7-1.7-1.9 1.1a1.7 1.7 0 00-3 0L12 4.6h-2.4l-.9 2.4a1.7 1.7 0 00-3 0L4 5.9 2.3 7.6l1.1 1.9a1.7 1.7 0 000 3L2.3 14.4l1.7 1.7 1.9-1.1a1.7 1.7 0 003 0l.9 2.4H12l.9-2.4a1.7 1.7 0 003 0l1.9 1.1 1.7-1.7z" stroke="currentColor" stroke-width="1.4" fill="none" stroke-linejoin="round"/></symbol>
+  <symbol id="icon-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4.5" stroke="currentColor" stroke-width="2" fill="none"/><path d="M12 2v2.5M12 19.5V22M4.2 4.2l1.8 1.8M18 18l1.8 1.8M2 12h2.5M19.5 12H22M4.2 19.8L6 18M18 6l1.8-1.8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+  <symbol id="icon-moon" viewBox="0 0 24 24"><path d="M20 14.5A8.5 8.5 0 119.5 4 7 7 0 0020 14.5z" stroke="currentColor" stroke-width="2" fill="none" stroke-linejoin="round"/></symbol>
+  <symbol id="icon-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></symbol>
+  <symbol id="icon-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2" fill="none"/><path d="M20 20l-4.5-4.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+  <symbol id="icon-edit" viewBox="0 0 24 24"><path d="M4 20l1-4 11-11 3 3-11 11-4 1z" stroke="currentColor" stroke-width="2" fill="none" stroke-linejoin="round"/><path d="M14 6l3 3" stroke="currentColor" stroke-width="2"/></symbol>
+  <symbol id="icon-trash" viewBox="0 0 24 24"><path d="M5 7h14M9 7V5a2 2 0 012-2h2a2 2 0 012 2v2m-9 0l1 13a2 2 0 002 2h6a2 2 0 002-2l1-13" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/><path d="M10 11v6M14 11v6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+  <symbol id="icon-print" viewBox="0 0 24 24"><path d="M6 9V3h12v6" stroke="currentColor" stroke-width="2" fill="none" stroke-linejoin="round"/><rect x="4" y="9" width="16" height="8" rx="1.5" stroke="currentColor" stroke-width="2" fill="none"/><path d="M7 17h10v4H7z" stroke="currentColor" stroke-width="2" fill="none" stroke-linejoin="round"/></symbol>
+  <symbol id="icon-eye" viewBox="0 0 24 24"><path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7-10-7-10-7z" stroke="currentColor" stroke-width="2" fill="none" stroke-linejoin="round"/><circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2" fill="none"/></symbol>
+  <symbol id="icon-export" viewBox="0 0 24 24"><path d="M12 16V4M8 8l4-4 4 4" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 16v3a2 2 0 002 2h12a2 2 0 002-2v-3" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/></symbol>
+  <symbol id="icon-import" viewBox="0 0 24 24"><path d="M12 4v12M8 12l4 4 4-4" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 16v3a2 2 0 002 2h12a2 2 0 002-2v-3" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/></symbol>
+  <symbol id="icon-check" viewBox="0 0 24 24"><path d="M4 12l5 5L20 6" stroke="currentColor" stroke-width="2.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="icon-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2" fill="none"/><path d="M12 7v5l3.5 2" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="icon-danger" viewBox="0 0 24 24"><path d="M12 3l9 17H3L12 3z" stroke="currentColor" stroke-width="2" fill="none" stroke-linejoin="round"/><path d="M12 10v4M12 17h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+  <symbol id="icon-install" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="4" stroke="currentColor" stroke-width="2" fill="none"/><path d="M12 7v7M9 11l3 3 3-3" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/><path d="M8 17h8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+  <symbol id="icon-camera" viewBox="0 0 24 24"><path d="M4 7h3l2-2h6l2 2h3a1 1 0 011 1v11a1 1 0 01-1 1H4a1 1 0 01-1-1V8a1 1 0 011-1z" stroke="currentColor" stroke-width="2" fill="none" stroke-linejoin="round"/><circle cx="12" cy="13" r="3.5" stroke="currentColor" stroke-width="2" fill="none"/></symbol>
+  <symbol id="icon-qr" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" stroke="currentColor" stroke-width="2" fill="none"/><rect x="14" y="3" width="7" height="7" stroke="currentColor" stroke-width="2" fill="none"/><rect x="3" y="14" width="7" height="7" stroke="currentColor" stroke-width="2" fill="none"/><path d="M14 14h3v3h-3zM20 14v3M14 20h3M20 20h.01" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/></symbol>
+  <symbol id="icon-phone" viewBox="0 0 24 24"><path d="M5 4h3l1.5 4-2 1.5a12 12 0 005.5 5.5l1.5-2 4 1.5v3a1 1 0 01-1 1A15 15 0 014 5a1 1 0 011-1z" stroke="currentColor" stroke-width="2" fill="none" stroke-linejoin="round"/></symbol>
+  <symbol id="icon-id" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2" stroke="currentColor" stroke-width="2" fill="none"/><circle cx="8" cy="11" r="2" stroke="currentColor" stroke-width="2" fill="none"/><path d="M5 16c0-1.5 1.3-2.5 3-2.5s3 1 3 2.5M14 9h5M14 13h5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+</defs>
+</svg>
+
+<script src="firebase-config.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
