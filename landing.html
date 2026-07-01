@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>الخيط الذهبي | محل خياطة احترافي</title>
+<meta name="description" content="محل الخيط الذهبي للخياطة الرجالية الاحترافية — مقاسات دقيقة، تصميمات عصرية، خدمة متميزة">
+
+<!-- ============================================================
+     Google AdSense — ضع كود AdSense الخاص بك هنا بعد الاعتماد
+     استبدل ca-pub-XXXXXXXXXXXXXXXX برقم ناشرك الحقيقي
+     ============================================================ -->
+<!-- <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-XXXXXXXXXXXXXXXX" crossorigin="anonymous"></script> -->
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
+
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --gold: #C08A4E;
+    --gold-light: #E0B27D;
+    --dark: #1a1410;
+    --teal: #0b2621;
+    --text: #2B2622;
+    --soft: #6B6259;
+    --bg: #FAF6F0;
+    --card: #FFFFFF;
+    --border: #E5DBCB;
+  }
+  body { font-family: 'Cairo', sans-serif; background: var(--bg); color: var(--text); direction: rtl; }
+  a { color: inherit; text-decoration: none; }
+
+  /* ===== الهيدر ===== */
+  header {
+    background: linear-gradient(160deg, #0b2621 0%, #163830 60%, #1f4f44 100%);
+    color: #fff;
+    padding: 0 24px;
+    position: sticky; top: 0; z-index: 100;
+    box-shadow: 0 2px 12px rgba(0,0,0,.3);
+  }
+  .header-inner {
+    max-width: 1100px; margin: 0 auto;
+    display: flex; align-items: center; justify-content: space-between;
+    height: 68px; gap: 16px;
+  }
+  .brand { display: flex; align-items: center; gap: 12px; }
+  .brand img { width: 46px; height: 46px; border-radius: 50%; border: 2px solid var(--gold); }
+  .brand-name { font-size: 1.15rem; font-weight: 900; color: var(--gold-light); }
+  nav { display: flex; gap: 6px; }
+  nav a {
+    padding: 8px 16px; border-radius: 8px;
+    font-size: .88rem; font-weight: 700;
+    color: rgba(255,255,255,.75);
+    transition: background .2s, color .2s;
+  }
+  nav a:hover { background: rgba(255,255,255,.1); color: #fff; }
+  nav a.active { background: rgba(192,138,78,.2); color: var(--gold-light); }
+
+  /* ===== بطل الصفحة (Hero) ===== */
+  .hero {
+    background: linear-gradient(140deg, #0b2621 0%, #163830 55%, #1f4f44 100%);
+    color: #fff;
+    padding: 80px 24px 90px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: "";
+    position: absolute; inset: 0;
+    background-image: repeating-linear-gradient(90deg, rgba(192,138,78,.07) 0 2px, transparent 2px 40px);
+  }
+  .hero-logo {
+    width: 110px; height: 110px;
+    border-radius: 50%;
+    border: 3px solid var(--gold);
+    box-shadow: 0 0 40px rgba(192,138,78,.3);
+    margin: 0 auto 20px;
+    display: block;
+  }
+  .hero h1 { font-size: clamp(1.8rem, 5vw, 3rem); font-weight: 900; margin-bottom: 14px; }
+  .hero h1 span { color: var(--gold-light); }
+  .hero p {
+    font-size: clamp(.95rem, 2.5vw, 1.15rem);
+    color: rgba(255,255,255,.75);
+    max-width: 560px; margin: 0 auto 32px;
+    line-height: 1.8;
+  }
+  .hero-btns { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+  .btn-gold {
+    background: linear-gradient(135deg, var(--gold-light), var(--gold));
+    color: #fff; font-weight: 800; font-family: inherit;
+    padding: 13px 28px; border-radius: 10px; border: none;
+    font-size: 1rem; cursor: pointer;
+    box-shadow: 0 6px 20px rgba(192,138,78,.4);
+    transition: transform .15s, box-shadow .15s;
+  }
+  .btn-gold:hover { transform: translateY(-2px); box-shadow: 0 10px 28px rgba(192,138,78,.5); }
+  .btn-outline {
+    background: transparent;
+    color: var(--gold-light); font-weight: 700; font-family: inherit;
+    padding: 12px 28px; border-radius: 10px;
+    border: 2px solid rgba(192,138,78,.5);
+    font-size: 1rem; cursor: pointer;
+    transition: background .2s;
+  }
+  .btn-outline:hover { background: rgba(192,138,78,.1); }
+
+  /* ===== المحتوى ===== */
+  .container { max-width: 1100px; margin: 0 auto; padding: 0 24px; }
+  section { padding: 70px 0; }
+  .section-title {
+    text-align: center; margin-bottom: 48px;
+  }
+  .section-title h2 { font-size: 1.8rem; font-weight: 900; margin-bottom: 10px; }
+  .section-title h2 span { color: var(--gold); }
+  .section-title p { color: var(--soft); font-size: .95rem; }
+
+  /* ===== مساحة الإعلان ===== */
+  .ad-slot {
+    background: var(--card);
+    border: 2px dashed var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    text-align: center;
+    margin: 40px 0;
+    min-height: 100px;
+    display: flex; align-items: center; justify-content: center;
+    flex-direction: column; gap: 8px;
+    color: var(--soft);
+    font-size: .82rem;
+  }
+  .ad-slot-label {
+    font-size: .72rem; color: #bbb; text-transform: uppercase;
+    letter-spacing: 1px; margin-bottom: 6px;
+  }
+
+  /* ===== بطاقات الخدمات ===== */
+  .services-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 20px;
+  }
+  .service-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 28px 22px;
+    text-align: center;
+    box-shadow: 0 4px 14px rgba(43,38,34,.06);
+    transition: transform .2s, box-shadow .2s;
+  }
+  .service-card:hover { transform: translateY(-4px); box-shadow: 0 10px 28px rgba(43,38,34,.12); }
+  .service-icon {
+    width: 64px; height: 64px; border-radius: 16px;
+    background: linear-gradient(145deg, rgba(192,138,78,.15), rgba(192,138,78,.05));
+    display: flex; align-items: center; justify-content: center;
+    margin: 0 auto 16px;
+    font-size: 1.8rem;
+  }
+  .service-card h3 { font-size: 1.05rem; font-weight: 800; margin-bottom: 8px; }
+  .service-card p { color: var(--soft); font-size: .88rem; line-height: 1.7; }
+
+  /* ===== لماذا نحن ===== */
+  .why-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+  }
+  .why-card {
+    background: var(--teal);
+    color: #fff;
+    border-radius: 14px;
+    padding: 24px 20px;
+    text-align: center;
+  }
+  .why-number { font-size: 2.2rem; font-weight: 900; color: var(--gold-light); line-height: 1; margin-bottom: 8px; }
+  .why-label { font-size: .88rem; color: rgba(255,255,255,.75); }
+
+  /* ===== الفوتر ===== */
+  footer {
+    background: var(--dark);
+    color: rgba(255,255,255,.6);
+    padding: 40px 24px;
+    text-align: center;
+    font-size: .85rem;
+  }
+  footer .footer-brand { color: var(--gold-light); font-weight: 800; font-size: 1rem; margin-bottom: 8px; }
+  .footer-links { display: flex; gap: 20px; justify-content: center; margin: 14px 0; }
+  .footer-links a { color: rgba(255,255,255,.5); font-size: .82rem; }
+  .footer-links a:hover { color: var(--gold-light); }
+
+  /* ===== تجاوب ===== */
+  @media (max-width: 640px) {
+    .header-inner { height: 58px; }
+    nav a { padding: 6px 10px; font-size: .78rem; }
+    section { padding: 48px 0; }
+    .hero { padding: 56px 20px 64px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ===== الهيدر ===== -->
+<header>
+  <div class="header-inner">
+    <div class="brand">
+      <img src="icons/icon-96.png" alt="الخيط الذهبي">
+      <span class="brand-name">الخيط الذهبي</span>
+    </div>
+    <nav>
+      <a href="#services" class="active">خدماتنا</a>
+      <a href="#why-us">لماذا نحن</a>
+      <a href="#contact">تواصل معنا</a>
+      <a href="index.html" style="background:rgba(192,138,78,.2);color:var(--gold-light)">دخول النظام</a>
+    </nav>
+  </div>
+</header>
+
+<!-- ===== بطل الصفحة ===== -->
+<div class="hero">
+  <img src="icons/icon-192.png" alt="الخيط الذهبي" class="hero-logo">
+  <h1>محل <span>الخيط الذهبي</span><br>للخياطة الاحترافية</h1>
+  <p>نقدم لك أرقى تجربة خياطة بمقاسات دقيقة وتصاميم تجمع بين الأصالة والحداثة. فريقنا المتخصص يحرص على أن تبدو في أفضل صورة.</p>
+  <div class="hero-btns">
+    <a href="#contact"><button class="btn-gold">📞 احجز موعد الآن</button></a>
+    <a href="#services"><button class="btn-outline">تعرّف على خدماتنا</button></a>
+  </div>
+</div>
+
+<!-- ===== مساحة إعلان (أعلى الصفحة) ===== -->
+<div class="container">
+  <div class="ad-slot" id="ad-top">
+    <span class="ad-slot-label">إعلان</span>
+    <!-- ضع هنا كود وحدة إعلان AdSense بعد اعتماد حسابك -->
+    <!--
+    <ins class="adsbygoogle"
+         style="display:block"
+         data-ad-client="ca-pub-XXXXXXXXXXXXXXXX"
+         data-ad-slot="XXXXXXXXXX"
+         data-ad-format="auto"
+         data-full-width-responsive="true"></ins>
+    <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+    -->
+    <p>مساحة إعلانية — ستظهر إعلانات AdSense هنا بعد اعتماد الحساب</p>
+  </div>
+</div>
+
+<!-- ===== قسم الخدمات ===== -->
+<section id="services">
+  <div class="container">
+    <div class="section-title">
+      <h2>خدماتنا <span>المتميزة</span></h2>
+      <p>كل ما تحتاجه في مكان واحد، بجودة لا تُضاهى</p>
+    </div>
+
+    <div class="services-grid">
+      <div class="service-card">
+        <div class="service-icon">✂️</div>
+        <h3>الخياطة الرجالية</h3>
+        <p>تفصيل أزياء رجالية راقية بأحدث التصاميم العصرية والكلاسيكية حسب مقاساتك الدقيقة.</p>
+      </div>
+      <div class="service-card">
+        <div class="service-icon">📏</div>
+        <h3>أخذ المقاسات</h3>
+        <p>فريقنا المتخصص يأخذ مقاساتك بدقة عالية لضمان ملاءمة مثالية وراحة تامة في كل قطعة.</p>
+      </div>
+      <div class="service-card">
+        <div class="service-icon">🧵</div>
+        <h3>التطريز والتزيين</h3>
+        <p>نضيف لمسات فنية مميزة من تطريز وزخارف تعكس ذوقك وتجعل كل قطعة تحفة فريدة.</p>
+      </div>
+      <div class="service-card">
+        <div class="service-icon">🔧</div>
+        <h3>التعديل والإصلاح</h3>
+        <p>خدمة تعديل الملابس الجاهزة لتناسب مقاساتك تماماً، وإصلاح أي عيوب بحرفية عالية.</p>
+      </div>
+      <div class="service-card">
+        <div class="service-icon">👔</div>
+        <h3>الأزياء التقليدية</h3>
+        <p>متخصصون في تفصيل الثوب والبشت والزي الرسمي بأجود الأقمشة وبأسلوب أصيل.</p>
+      </div>
+      <div class="service-card">
+        <div class="service-icon">🚚</div>
+        <h3>التوصيل والاستلام</h3>
+        <p>خدمة استلام قماشك من منزلك وتوصيل الطلب إليك عند الانتهاء براحة تامة.</p>
+      </div>
+    </div>
+
+    <!-- مساحة إعلان (وسط الصفحة) -->
+    <div class="ad-slot" id="ad-mid">
+      <span class="ad-slot-label">إعلان</span>
+      <!--
+      <ins class="adsbygoogle"
+           style="display:block"
+           data-ad-client="ca-pub-XXXXXXXXXXXXXXXX"
+           data-ad-slot="XXXXXXXXXX"
+           data-ad-format="auto"
+           data-full-width-responsive="true"></ins>
+      <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+      -->
+      <p>مساحة إعلانية — ستظهر إعلانات AdSense هنا بعد اعتماد الحساب</p>
+    </div>
+  </div>
+</section>
+
+<!-- ===== لماذا نحن ===== -->
+<section id="why-us" style="background: #f4ede3; padding: 70px 0;">
+  <div class="container">
+    <div class="section-title">
+      <h2>لماذا تختار <span>الخيط الذهبي؟</span></h2>
+      <p>أرقام تتحدث عن نفسها</p>
+    </div>
+    <div class="why-grid">
+      <div class="why-card">
+        <div class="why-number">+500</div>
+        <div class="why-label">عميل راضٍ</div>
+      </div>
+      <div class="why-card">
+        <div class="why-number">+10</div>
+        <div class="why-label">سنوات خبرة</div>
+      </div>
+      <div class="why-card">
+        <div class="why-number">100%</div>
+        <div class="why-label">ضمان الجودة</div>
+      </div>
+      <div class="why-card">
+        <div class="why-number">48h</div>
+        <div class="why-label">وقت تسليم مبهر</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== تواصل معنا ===== -->
+<section id="contact">
+  <div class="container">
+    <div class="section-title">
+      <h2>تواصل <span>معنا</span></h2>
+      <p>يسعدنا خدمتك في أي وقت</p>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:20px;max-width:700px;margin:0 auto;text-align:center">
+      <div style="background:var(--card);border:1px solid var(--border);border-radius:14px;padding:28px 20px">
+        <div style="font-size:2rem;margin-bottom:10px">📞</div>
+        <div style="font-weight:800;margin-bottom:6px">الهاتف</div>
+        <div style="color:var(--soft);font-size:.9rem">212625759740</div>
+      </div>
+      <div style="background:var(--card);border:1px solid var(--border);border-radius:14px;padding:28px 20px">
+        <div style="font-size:2rem;margin-bottom:10px">📍</div>
+        <div style="font-weight:800;margin-bottom:6px">العنوان</div>
+        <div style="color:var(--soft);font-size:.9rem">فقيه بن صالح</div>
+      </div>
+      <div style="background:var(--card);border:1px solid var(--border);border-radius:14px;padding:28px 20px">
+        <div style="font-size:2rem;margin-bottom:10px">🕐</div>
+        <div style="font-weight:800;margin-bottom:6px">أوقات العمل</div>
+        <div style="color:var(--soft);font-size:.9rem">متاح على مدار الساعة<br>طوال أيام الأسبوع</div>
+      </div>
+    </div>
+
+    <!-- مساحة إعلان (أسفل الصفحة) -->
+    <div class="ad-slot" style="margin-top:48px" id="ad-bottom">
+      <span class="ad-slot-label">إعلان</span>
+      <!--
+      <ins class="adsbygoogle"
+           style="display:block"
+           data-ad-client="ca-pub-XXXXXXXXXXXXXXXX"
+           data-ad-slot="XXXXXXXXXX"
+           data-ad-format="auto"
+           data-full-width-responsive="true"></ins>
+      <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+      -->
+      <p>مساحة إعلانية — ستظهر إعلانات AdSense هنا بعد اعتماد الحساب</p>
+    </div>
+  </div>
+</section>
+
+<!-- ===== الفوتر ===== -->
+<footer>
+  <div class="footer-brand">✂️ الخيط الذهبي</div>
+  <p>نظام إدارة محل الخياطة الاحترافي</p>
+  <div class="footer-links">
+    <a href="index.html">دخول النظام</a>
+    <a href="#services">خدماتنا</a>
+    <a href="#contact">تواصل معنا</a>
+  </div>
+  <p style="margin-top:16px;font-size:.75rem">جميع الحقوق محفوظة © 2026 — الخيط الذهبي</p>
+</footer>
+
+</body>
+</html>
